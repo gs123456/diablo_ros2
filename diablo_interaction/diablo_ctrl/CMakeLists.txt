@@ -23,7 +23,6 @@ find_package(ament_cmake REQUIRED)
 find_package(motion_msgs REQUIRED)
 find_package(diablo_utils REQUIRED)
 
-
 include_directories(
     include
 )
@@ -33,17 +32,38 @@ set(dependencies
   diablo_body
   motion_msgs
   diablo_utils
-)
-
-set(executable_name diablo_ctrl_node)
-
-add_executable(${executable_name} 
-      src/diablo_ctrl.cpp
   )
 
-ament_target_dependencies(${executable_name} ${dependencies})
+# set(executable_name diablo_ctrl_node)
+set(node_sources
+ src/diablo_ctrl.cpp
+ src/diablo_ctrl_test_service.cpp
+ src/diablo_ctrl_test_client.cpp
+ )
+ 
+
+# add_executable(${executable_name} 
+#       # src/diablo_ctrl.cpp
+#       # src/diablo_ctrl_test_client.cpp
+#       src/diablo_ctrl_test_service.cpp
+#         )
+
+
+foreach(source_file ${node_sources})
+  get_filename_component(node_name ${source_file} NAME_WE)
+  add_executable(${node_name} ${source_file})
+
+  ament_target_dependencies(${node_name} ${dependencies})
+
+  install(TARGETS ${node_name} DESTINATION lib/${PROJECT_NAME})
+endforeach(source_file ${node_sources})
+
+# ament_target_dependencies(${executable_name} ${dependencies})
 # ament_target_dependencies(${library_name} ${dependencies})
 
+
+install(DIRECTORY launch config
+DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS ${library_name}
   DESTINATION lib)
@@ -71,3 +91,4 @@ ament_export_include_directories(include)
 ament_export_libraries(${library_name})
 ament_export_dependencies(${dependencies})
 ament_package()
+
